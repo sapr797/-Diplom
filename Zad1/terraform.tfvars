@@ -1,0 +1,6 @@
+cloud_id                 = "b1g36426920rk8dvvn2r"
+folder_id                = "b1gsq7mn8r0m1g4qf15j"
+service_account_key_file = "key.json"
+zone                     = "ru-central1-a"
+bucket_name_prefix       = "tf-state"
+environment              = "dev"
