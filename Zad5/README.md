@@ -33,7 +33,7 @@ CLOUD_ID	ID облака	yc config list
 FOLDER_ID	ID каталога	yc config list
 REGISTRY_ID	ID Container Registry	yc container registry list
 KUBE_CONFIG	kubeconfig (base64)	cat ~/.kube/config | base64 -w 0
-##Добавление Secrets в GitHub:
+## Добавление Secrets в GitHub:
 Перейдите в репозиторий → Settings → Secrets and variables → Actions
 Нажмите New repository secret
 
@@ -48,7 +48,7 @@ yc iam create-token
 # Получить ID реестра
 yc container registry list
 
-##Проверка работы
+## Проверка работы
 После успешного деплоя:
 
 # Проверить поды
