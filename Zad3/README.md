@@ -45,7 +45,7 @@ CMD ["nginx", "-g", "daemon off;"]
 
 Сборка и публикация
 1. Сборка образа
-bash
+
 # Локальная сборка
 docker build -t test-app:latest .
 
@@ -53,7 +53,7 @@ docker build -t test-app:latest .
 docker run -p 8080:80 test-app:latest
 # Открыть http://localhost:8080
 2. Публикация в Yandex Container Registry
-bash
+
 # Аутентификация в YCR
 yc container registry configure-docker
 
@@ -71,22 +71,5 @@ docker tag test-app:latest cr.yandex/$REGISTRY_ID/test-app:v1.0.0
 docker push cr.yandex/$REGISTRY_ID/test-app:latest
 docker push cr.yandex/$REGISTRY_ID/test-app:v1.0.0
 3. Terraform для Container Registry (опционально)
-hcl
-# registry.tf
-resource "yandex_container_registry" "test_app" {
-  name      = "test-app"
-  folder_id = var.folder_id
-  labels = {
-    environment = "dev"
-    managed-by  = "terraform"
-  }
-}
 
-output "registry_id" {
-  value = yandex_container_registry.test_app.id
-}
-
-output "registry_name" {
-  value = yandex_container_registry.test_app.name
-}
 
