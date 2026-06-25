@@ -1,0 +1,16 @@
+# Monitoring configuration
+grafana:
+  adminPassword: admin123
+  service:
+    type: NodePort
+    nodePort: 30090
+
+prometheus:
+  service:
+    type: NodePort
+    nodePort: 30091
+
+alertmanager:
+  service:
+    type: NodePort
+    nodePort: 30093
