@@ -12,4 +12,5 @@ node_memory        = 4
 node_cores         = 2
 node_core_fraction = 50
 
+subnet_cidr = "10.100.0.0/24"
 ssh_public_key_path = "~/.ssh/id_ed25519.pub"
