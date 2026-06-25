@@ -1,37 +1,45 @@
 
-Zad3: Тестовое приложение
-Описание
-Развертывание тестового nginx приложения в Kubernetes кластере.
+# 🚀 Задание 3: Тестовое приложение
 
-Файлы
-deployment.yaml - манифесты Deployment и Service
+## 📋 Описание
 
-Приложение
-Образ: nginx:alpine
+Создание тестового приложения на базе nginx для демонстрации работы Kubernetes кластера.
 
-Порт: 80
+### Что сделано:
+- ✅ Создан отдельный git репозиторий с тестовым приложением
+- ✅ Подготовлен Dockerfile для сборки образа
+- ✅ Настроен nginx для отдачи статических данных
+- ✅ Создан манифест для деплоя в Kubernetes
+- ✅ Подготовлена конфигурация для Yandex Container Registry
 
-Тип сервиса: NodePort
+---
 
-NodePort: 31160
+## 📁 Структура репозитория
+test-app/
+├── Dockerfile # Сборка образа
+├── index.html # Статическая страница
+├── deployment.yaml # Kubernetes манифест
+├── .dockerignore # Исключения для сборки
+└── README.md # Документация
 
-Развертывание
-bash
-kubectl apply -f deployment.yaml
-Проверка
-bash
-# Статус подов
-kubectl get pods
+text
 
-# Статус сервиса
-kubectl get svc
+---
 
-# Доступ к приложению
-curl http://<ANY_NODE_IP>:31160
-Деплой в кластер
-bash
-# Установка
-kubectl apply -f deployment.yaml
+## 📄 Файлы
 
-# Удаление
-kubectl delete -f deployment.yaml
+### 1. `Dockerfile`
+
+```dockerfile
+FROM nginx:alpine
+
+# Копируем статическую страницу
+COPY index.html /usr/share/nginx/html/index.html
+
+# Копируем кастомный конфиг nginx (опционально)
+# COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+# Запуск nginx в foreground
+CMD ["nginx", "-g", "daemon off;"]
