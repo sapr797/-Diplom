@@ -1,3 +1,6 @@
+# 01-setup/variables.tf
+# Только для создания сервисного аккаунта и S3 бакета
+
 variable "cloud_id" {
   description = "Yandex Cloud ID"
   type        = string
@@ -20,50 +23,34 @@ variable "zone" {
   default     = "ru-central1-a"
 }
 
-variable "cluster_name" {
-  description = "Name of the Kubernetes cluster"
+# Переменные для сервисного аккаунта
+variable "service_account_name" {
+  description = "Name of the service account"
   type        = string
-  default     = "k8s-cluster"
+  default     = "terraform-sa"
 }
 
-variable "cluster_description" {
-  description = "Description of the Kubernetes cluster"
+variable "service_account_description" {
+  description = "Description of the service account"
   type        = string
-  default     = "Managed Kubernetes cluster"
+  default     = "Service account for Terraform operations"
 }
 
-variable "node_count" {
-  description = "Number of worker nodes"
-  type        = number
-  default     = 2
-}
-
-variable "node_disk_size" {
-  description = "Size of node disk in GB"
-  type        = number
-  default     = 30
-}
-
-variable "node_memory" {
-  description = "Memory for each node in GB"
-  type        = number
-  default     = 4
-}
-
-variable "node_cores" {
-  description = "CPU cores for each node"
-  type        = number
-  default     = 2
-}
-
-variable "node_core_fraction" {
-  description = "Core fraction for nodes (20, 50, 100)"
-  type        = number
-  default     = 50
-}
-
-variable "subnet_cidr" {
-  description = "CIDR block for subnet"
+# Переменные для S3 бакета
+variable "bucket_name_prefix" {
+  description = "Prefix for S3 bucket name"
   type        = string
-  default     = "10.100.0.0/24"
+  default     = "tf-state"
+}
+
+variable "environment" {
+  description = "Environment name (dev, prod, etc.)"
+  type        = string
+  default     = "dev"
+}
+
+variable "bucket_max_size" {
+  description = "Maximum size of the bucket in bytes"
+  type        = number
+  default     = 1073741824 # 1 GB
 }
