@@ -1,0 +1,50 @@
+# Деплой Atlantis в Kubernetes
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: atlantis
+  namespace: atlantis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: atlantis
+  template:
+    metadata:
+      labels:
+        app: atlantis
+    spec:
+      containers:
+      - name: atlantis
+        image: ghcr.io/runatlantis/atlantis:v0.27.0
+        ports:
+        - containerPort: 4141
+        env:
+        - name: ATLANTIS_GH_USER
+          valueFrom:
+            secretKeyRef:
+              name: atlantis-secrets
+              key: username
+        - name: ATLANTIS_GH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: atlantis-secrets
+              key: token
+        - name: ATLANTIS_REPO_ALLOWLIST
+          value: "github.com/your-org/your-repo"
+        - name: ATLANTIS_ATLANTIS_URL
+          value: "http://atlantis.example.com"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: atlantis
+  namespace: atlantis
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 4141
+    nodePort: 31441
+  selector:
+    app: atlantis
