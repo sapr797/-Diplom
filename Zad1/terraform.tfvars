@@ -4,7 +4,7 @@ service_account_key_file = var.service_account_key_file
 zone                     = var.zone
 
 cluster_name        = "k8s-devops-cluster"
-cluster_description = "DevOps Kubernetes Cluster"
+cluster_description = "Managed Kubernetes Cluster"
 
 node_count         = 2
 node_disk_size     = 30
