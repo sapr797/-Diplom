@@ -1,0 +1,60 @@
+# Вариант 2: GitLab CI
+#yaml
+stages:
+  - plan
+  - apply
+  - deploy
+
+variables:
+  TF_VERSION: "1.9.8"
+  TF_ROOT: ${CI_PROJECT_DIR}
+
+cache:
+  key: "${CI_COMMIT_REF_SLUG}"
+  paths:
+    - .terraform
+
+terraform_plan:
+  stage: plan
+  image: hashicorp/terraform:${TF_VERSION}
+  before_script:
+    - apk add --no-cache curl jq
+    - curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+    - export PATH=$PATH:$HOME/yandex-cloud/bin
+  script:
+    - cd Zad1 && terraform init && terraform plan -out=tfplan
+    - cd ../Zad2 && terraform init && terraform plan -out=tfplan
+  artifacts:
+    paths:
+      - Zad1/tfplan
+      - Zad2/tfplan
+    expire_in: 7 days
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+
+terraform_apply:
+  stage: apply
+  image: hashicorp/terraform:${TF_VERSION}
+  before_script:
+    - apk add --no-cache curl jq
+    - curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+    - export PATH=$PATH:$HOME/yandex-cloud/bin
+  script:
+    - cd Zad1 && terraform apply tfplan
+    - cd ../Zad2 && terraform apply tfplan
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  environment:
+    name: production
+
+deploy_monitoring:
+  stage: deploy
+  image: alpine/k8s:latest
+  before_script:
+    - apk add --no-cache bash curl
+    - curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+    - export PATH=$PATH:$HOME/yandex-cloud/bin
+  script:
+    - cd Zad4 && chmod +x install.sh && ./install.sh
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
