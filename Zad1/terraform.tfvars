@@ -1,16 +1,11 @@
-cloud_id                 = var.cloud_id
-folder_id                = var.folder_id
-service_account_key_file = var.service_account_key_file
-zone                     = var.zone
+cloud_id                 = "b1g36426920rk8dvvn2r"
+folder_id                = "b1gsq7mn8r0m1g4qf15j" 
+yc_token                 = "t1.9euelZrIy8nJzceWx..."
+zone                     = "ru-central1-a"
 
-cluster_name        = "k8s-devops-cluster"
-cluster_description = "Managed Kubernetes Cluster"
+service_account_name        = "terraform-sa"
+service_account_description = "Service account for Terraform operations"
 
-node_count         = 2
-node_disk_size     = 30
-node_memory        = 4
-node_cores         = 2
-node_core_fraction = 50
-
-subnet_cidr = "10.100.0.0/24"
-ssh_public_key_path = "~/.ssh/id_ed25519.pub"
+bucket_name_prefix = "tf-state"
+environment        = "dev"
+bucket_max_size    = 1073741824 
