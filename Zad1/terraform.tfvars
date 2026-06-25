@@ -1,7 +1,7 @@
-cloud_id                 = "b1g36426920rk8dvvn2r"
-folder_id                = "b1gsq7mn8r0m1g4qf15j"
-service_account_key_file = "key.json"
-zone                     = "ru-central1-a"
+cloud_id                 = var.cloud_id
+folder_id                = var.folder_id
+service_account_key_file = var.service_account_key_file
+zone                     = var.zone
 
 cluster_name        = "k8s-devops-cluster"
 cluster_description = "DevOps Kubernetes Cluster"
