@@ -1,8 +1,12 @@
+--
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: test-app
   namespace: default
+  labels:
+    app: test-app
+    version: v1
 spec:
   replicas: 2
   selector:
@@ -12,18 +16,41 @@ spec:
     metadata:
       labels:
         app: test-app
+        version: v1
     spec:
       containers:
       - name: nginx
-        image: nginx:alpine
+        image: cr.yandex/<YOUR_REGISTRY_ID>/test-app:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 20
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: test-app
   namespace: default
+  labels:
+    app: test-app
 spec:
   type: NodePort
   selector:
@@ -32,3 +59,24 @@ spec:
   - port: 80
     targetPort: 80
     nodePort: 30080
+    protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: test-app
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: test-app.local  # Замените на ваш домен или используйте IP
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: test-app
+            port:
+              number: 80
