@@ -1,6 +1,4 @@
-# 01-setup/variables.tf
-# Только для создания сервисного аккаунта и S3 бакета
-
+# Cоздания сервисного аккаунта и S3 бакета
 variable "cloud_id" {
   description = "Yandex Cloud ID"
   type        = string
