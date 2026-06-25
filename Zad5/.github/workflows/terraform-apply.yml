@@ -1,0 +1,97 @@
+name: Terraform Apply
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'Zad1/**'
+      - 'Zad2/**'
+      - 'Zad3/**'
+      - 'Zad4/**'
+
+jobs:
+  terraform-apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      TF_VAR_yc_token: ${{ secrets.YC_TOKEN }}
+      TF_VAR_cloud_id: ${{ secrets.CLOUD_ID }}
+      TF_VAR_folder_id: ${{ secrets.FOLDER_ID }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.9.8
+        terraform_wrapper: false
+
+    - name: Setup Yandex Cloud CLI
+      run: |
+        curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+        echo "$HOME/yandex-cloud/bin" >> $GITHUB_PATH
+
+    - name: Terraform Apply (Zad1)
+      run: |
+        cd Zad1
+        terraform init
+        terraform apply -auto-approve
+      env:
+        TF_VAR_yc_token: ${{ secrets.YC_TOKEN }}
+
+    - name: Get Backend Config
+      id: backend
+      run: |
+        cd Zad1
+        terraform output -json backend_config > backend.json
+        echo "BUCKET=$(cat backend.json | jq -r '.bucket')" >> $GITHUB_ENV
+        echo "ACCESS_KEY=$(cat backend.json | jq -r '.access_key')" >> $GITHUB_ENV
+        echo "SECRET_KEY=$(cat backend.json | jq -r '.secret_key')" >> $GITHUB_ENV
+
+    - name: Terraform Apply (Zad2)
+      run: |
+        cd Zad2
+        terraform init -backend-config="bucket=${{ env.BUCKET }}" \
+                       -backend-config="access_key=${{ env.ACCESS_KEY }}" \
+                       -backend-config="secret_key=${{ env.SECRET_KEY }}"
+        terraform apply -auto-approve
+
+    - name: Get Kubeconfig
+      run: |
+        cd Zad2
+        terraform output -raw kubeconfig > kubeconfig
+        echo "KUBECONFIG=$(pwd)/kubeconfig" >> $GITHUB_ENV
+
+    - name: Deploy Monitoring (Zad4)
+      run: |
+        cd Zad4
+        chmod +x install.sh
+        ./install.sh
+
+    - name: Deploy Test App (Zad3)
+      run: |
+        kubectl apply -f Zad3/deployment.yaml
+
+    - name: Get Service URLs
+      run: |
+        echo "## 📊 Deployment Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🚀 Services" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Service | URL | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|---------|-----|--------|" >> $GITHUB_STEP_SUMMARY
+        
+        GRAFANA_NP=$(kubectl get svc -n monitoring prometheus-grafana -o jsonpath='{.spec.ports[0].nodePort}')
+        APP_NP=$(kubectl get svc test-app -o jsonpath='{.spec.ports[0].nodePort}')
+        NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="ExternalIP")].address}')
+        
+        echo "| Grafana | http://$NODE_IP:$GRAFANA_NP | 🟢 Running |" >> $GITHUB_STEP_SUMMARY
+        echo "| Test App | http://$NODE_IP:$APP_NP | 🟢 Running |" >> $GITHUB_STEP_SUMMARY
+
+    - name: Notify
+      if: success()
+      run: |
+        echo "✅ Terraform apply completed successfully!"
