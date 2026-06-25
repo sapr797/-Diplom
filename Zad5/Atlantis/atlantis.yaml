@@ -1,0 +1,38 @@
+# Вариант 3
+version: 3
+projects:
+- name: zad1
+  dir: Zad1
+  workflow: yandex
+  autoplan:
+    when_modified: ["*.tf", "*.tfvars"]
+    enabled: true
+- name: zad2
+  dir: Zad2
+  workflow: yandex
+  autoplan:
+    when_modified: ["*.tf", "*.tfvars"]
+    enabled: true
+- name: zad3
+  dir: Zad3
+  workflow: yandex
+  autoplan:
+    when_modified: ["*.tf", "*.tfvars"]
+    enabled: true
+- name: zad4
+  dir: Zad4
+  workflow: yandex
+  autoplan:
+    when_modified: ["*.tf", "*.tfvars"]
+    enabled: true
+
+workflows:
+  yandex:
+    plan:
+      steps:
+        - init
+        - plan:
+            extra_args: ["-lock=false", "-input=false"]
+    apply:
+      steps:
+        - apply
