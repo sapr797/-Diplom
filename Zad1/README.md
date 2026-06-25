@@ -95,7 +95,7 @@ yc managed-kubernetes cluster get-credentials <имя_кластера> --folder
 
 terraform output cluster_endpoint
 7. Проверка работоспособности
-bash
+
 kubectl get nodes
 kubectl get pods -A
  Что получите на выходе
