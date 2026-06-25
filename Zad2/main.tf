@@ -1,27 +1,3 @@
-terraform {
-  required_version = ">= 1.3"
-
-  backend "s3" {
-    endpoint   = "storage.yandexcloud.net"
-    region     = "ru-central1"
-    skip_region_validation      = true
-    skip_credentials_validation = true
-  }
-
-  required_providers {
-    yandex = {
-      source  = "yandex-cloud/yandex"
-      version = ">= 0.92"
-    }
-  }
-}
-
-provider "yandex" {
-  cloud_id                 = var.cloud_id
-  folder_id                = var.folder_id
-  service_account_key_file = var.service_account_key_file
-}
-
 # VPC Network
 resource "yandex_vpc_network" "k8s_network" {
   name        = "k8s-network"
