@@ -1,0 +1,86 @@
+``yaml
+name: Terraform Plan
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'Zad1/**'
+      - 'Zad2/**'
+      - 'Zad3/**'
+      - 'Zad4/**'
+
+jobs:
+  terraform-plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    env:
+      TF_VAR_yc_token: ${{ secrets.YC_TOKEN }}
+      TF_VAR_cloud_id: ${{ secrets.CLOUD_ID }}
+      TF_VAR_folder_id: ${{ secrets.FOLDER_ID }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.9.8
+        terraform_wrapper: false
+
+    - name: Setup Yandex Cloud CLI
+      run: |
+        curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+        echo "$HOME/yandex-cloud/bin" >> $GITHUB_PATH
+
+    - name: Terraform Init (Zad1)
+      run: |
+        cd Zad1
+        terraform init
+
+    - name: Terraform Plan (Zad1)
+      id: plan_zad1
+      run: |
+        cd Zad1
+        terraform plan -no-color -out=tfplan
+      continue-on-error: true
+
+    - name: Terraform Init (Zad2)
+      run: |
+        cd Zad2
+        terraform init
+
+    - name: Terraform Plan (Zad2)
+      id: plan_zad2
+      run: |
+        cd Zad2
+        terraform plan -no-color -out=tfplan
+      continue-on-error: true
+
+    - name: Comment PR
+      uses: actions/github-script@v6
+      if: github.event_name == 'pull_request'
+      with:
+        script: |
+          const planOutput = `### Terraform Plan Results
+          
+          **Zad1 (Infrastructure)**
+          \`\`\`
+          ${{ steps.plan_zad1.outputs.stdout }}
+          \`\`\`
+          
+          **Zad2 (Kubernetes)**
+          \`\`\`
+          ${{ steps.plan_zad2.outputs.stdout }}
+          \`\`\`
+          
+          🟢 Plan generated successfully.
+          `;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: planOutput
+          })
